@@ -17,7 +17,7 @@
 |          | Spring OAuth 2.0                                             | Spring Security OAuth Boot                                   | Spring Cloud Security                                        | Spring OAuth 2.1                                             |
 | -------- | ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ |
 | 仓库地址 | [spring-security-oauth](https://github.com/spring-attic/spring-security-oauth) | [spring-security-oauth2-boot](https://github.com/spring-attic/spring-security-oauth2-boot) | [spring-cloud-security](https://github.com/spring-attic/spring-cloud-security) | [spring-authorization-server](https://github.com/spring-projects/spring-authorization-server) |
-| 是否更新 | 2022年6月1日归档                                             | 2022年5月31日归档                                            | 2022年4月4日归档                                             |                                                              |
+| 是否更新 | 否，2022年6月1日归档                                             | 否，2022年5月31日归档                                            | 否，2022年4月4日归档                                             |     是                                                         |
 | 最新版本 | 2.5.2.RELEASE                                                | 2.6.8                                                        | 2.2.5                                                        | 1.2.1                                                        |
 
 ## 特性
