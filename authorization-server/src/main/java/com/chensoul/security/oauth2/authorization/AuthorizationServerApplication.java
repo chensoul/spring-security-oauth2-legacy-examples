@@ -7,7 +7,7 @@ import org.springframework.boot.web.servlet.support.SpringBootServletInitializer
 /**
  * The main class that starts the Spring Boot application.
  */
-@SpringBootApplication(scanBasePackages = {"com.chensoul.oauth2.authorization", "com.chensoul.oauth2.common"})
+@SpringBootApplication(scanBasePackages = {"com.chensoul.security.oauth2.authorization", "com.chensoul.security.oauth2.common"})
 public class AuthorizationServerApplication extends SpringBootServletInitializer {
 
 	/**

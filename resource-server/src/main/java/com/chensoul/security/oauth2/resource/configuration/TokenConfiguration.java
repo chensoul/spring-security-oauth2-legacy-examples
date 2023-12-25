@@ -4,13 +4,24 @@ import com.chensoul.security.oauth2.common.support.CustomAccessTokenConverter;
 import com.chensoul.security.oauth2.common.support.CustomAuthenticationKeyGenerator;
 import com.chensoul.security.oauth2.common.support.CustomJwtClaimsSetVerifier;
 import com.chensoul.security.oauth2.common.util.RSAUtil;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.security.interfaces.RSAPublicKey;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.stream.Collectors;
+import javax.sql.DataSource;
 import lombok.AllArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.security.oauth2.resource.ResourceServerProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Primary;
 import org.springframework.core.env.Environment;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.client.ClientHttpResponse;
@@ -19,17 +30,14 @@ import org.springframework.security.jwt.crypto.sign.RsaVerifier;
 import org.springframework.security.oauth2.provider.token.DefaultTokenServices;
 import org.springframework.security.oauth2.provider.token.ResourceServerTokenServices;
 import org.springframework.security.oauth2.provider.token.TokenStore;
-import org.springframework.security.oauth2.provider.token.store.*;
+import org.springframework.security.oauth2.provider.token.store.DelegatingJwtClaimsSetVerifier;
+import org.springframework.security.oauth2.provider.token.store.JdbcTokenStore;
+import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
+import org.springframework.security.oauth2.provider.token.store.JwtClaimsSetVerifier;
+import org.springframework.security.oauth2.provider.token.store.JwtTokenStore;
 import org.springframework.security.oauth2.provider.token.store.redis.RedisTokenStore;
 import org.springframework.web.client.DefaultResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
-
-import javax.sql.DataSource;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.security.interfaces.RSAPublicKey;
-import java.util.Arrays;
 
 @Configuration
 @ConditionalOnProperty(prefix = "spring.security.oauth2.resourceserver.jwt", name = "jwk-set-uri", havingValue = "", matchIfMissing = true)
@@ -39,8 +47,14 @@ import java.util.Arrays;
 	TokenConfiguration.RemoteTokenConfiguration.class}
 )
 public class TokenConfiguration {
+
+	@AllArgsConstructor
 	@ConditionalOnProperty(prefix = "authorization", name = "token-type", havingValue = "jwt", matchIfMissing = true)
 	public class JwtTokenConfiguration {
+		private static final String PUBLIC_KEY = "public.key";
+
+		private ResourceServerProperties resourceServerProperties;
+
 		/**
 		 * jwt TokenStore 实现
 		 *
@@ -61,28 +75,33 @@ public class TokenConfiguration {
 			//		converter.setSigningKey("123456");
 
 			// 非对称加密
-			String publicKey = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA21NOwgpCcR4542Us6chl\n" +
-				"yO5HWxGXHQ3zauMSpGgPYDIP8okO6XWHtXNXq9kaXbx9qrpw605/73xbbSLYGq3X\n" +
-				"FoPVaKROVqKAZMGph4SOVl7lRISOc/kHLPKcaMaHmGPzWeHhmuSuM5yU4d4NN1/g\n" +
-				"VeVgifPH1cQZSdvVSTtiIs7Nc7d0eGkR2a+VEIuHxFNY5ttWPgLPZC4vh90WhFAc\n" +
-				"5yES9ilq+9plg/EOBkMr7+zSAIdtZF2PvU8i2dYuDUzFD1vD2itbjEnd3kZDJKPA\n" +
-				"nWW0QkerpsdSml2zdxbsMEadDOfIRqKoQDHjBpZK3vGBO65MLk8dg6Z1ukS66D3T\n" +
-				"lQIDAQAB";
-			converter.setVerifier(new RsaVerifier((RSAPublicKey) RSAUtil.getPublicKeyFromString(publicKey)));
-
+			converter.setVerifier(new RsaVerifier(getPubKey()));
 			return converter;
 		}
 
-		public JwtClaimsSetVerifier jwtClaimsSetVerifier() {
-			return new DelegatingJwtClaimsSetVerifier(Arrays.asList(issuerClaimVerifier(), new CustomJwtClaimsSetVerifier()));
+		private RSAPublicKey getPubKey() {
+			String publicKey = null;
+			try (BufferedReader br = new BufferedReader(new InputStreamReader(new ClassPathResource(PUBLIC_KEY).getInputStream()))) {
+				publicKey = br.lines().collect(Collectors.joining("\n"));
+			} catch (Exception ioe) {
+				publicKey = getKeyFromAuthorizationServer();
+			}
+			return (RSAPublicKey) RSAUtil.getPublicKeyFromString(publicKey);
 		}
 
-		public JwtClaimsSetVerifier issuerClaimVerifier() {
+		private String getKeyFromAuthorizationServer() {
+			ObjectMapper objectMapper = new ObjectMapper();
+			String pubKey = new RestTemplate().getForObject(resourceServerProperties.getJwt().getKeyUri(), String.class);
 			try {
-				return new IssuerClaimVerifier(new URL("https://auth.chensoul.com"));
-			} catch (final MalformedURLException e) {
-				throw new RuntimeException(e);
+				Map map = objectMapper.readValue(pubKey, Map.class);
+				return map.get("value").toString();
+			} catch (IOException e) {
+				return null;
 			}
+		}
+
+		public JwtClaimsSetVerifier jwtClaimsSetVerifier() {
+			return new DelegatingJwtClaimsSetVerifier(Arrays.asList(new CustomJwtClaimsSetVerifier()));
 		}
 
 		@Bean
