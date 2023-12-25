@@ -1,4 +1,4 @@
-# spring-security-oauth2-legacy
+# spring-security-oauth2-legacy-examples
 
 基于 JDK8 使用 Spring Security OAuth2 遗留项目 [spring-security-oauth2-boot](https://github.com/spring-attic/spring-security-oauth2-boot) 搭建 OAuth2 授权和认证服务。
 
