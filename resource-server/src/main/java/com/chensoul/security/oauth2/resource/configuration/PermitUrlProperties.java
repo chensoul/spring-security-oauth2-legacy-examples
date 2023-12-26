@@ -1,4 +1,4 @@
-package com.chensoul.security.oauth2.resource.properties;
+package com.chensoul.security.oauth2.resource.configuration;
 
 import com.chensoul.security.oauth2.common.annotation.Inner;
 import com.chensoul.security.oauth2.common.util.SpringContextHolder;

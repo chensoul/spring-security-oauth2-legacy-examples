@@ -13,7 +13,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.lang.Nullable;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.config.annotation.configuration.ClientDetailsServiceConfiguration;
 import org.springframework.security.oauth2.provider.ClientDetailsService;
 import org.springframework.security.oauth2.provider.client.BaseClientDetails;
@@ -34,16 +33,17 @@ public class ClientDetailsConfiguration {
 	@Configuration
 	@AllArgsConstructor
 	@AutoConfigureBefore(ClientDetailsServiceConfiguration.class)
-	@ConditionalOnProperty(prefix = "authorization", name = "client-type", havingValue = "memory", matchIfMissing = true)
+	@ConditionalOnProperty(prefix = "security.oauth2", name = "client-type", havingValue = "memory", matchIfMissing = true)
 	public static class InMemoryClientDetailsConfig {
-		private PasswordEncoder passwordEncoder;
 
 		@Bean
 		public ClientDetailsService clientDetailsService() {
 			InMemoryClientDetailsService clientDetailsService = new InMemoryClientDetailsService();
 			Map<String, BaseClientDetails> baseClientDetailsMap = new HashMap<>();
-			BaseClientDetails baseClientDetails = new BaseClientDetails("client", "", "server,profile", "authorization_code,password,refresh_token,client_credentials", "http://localhost:8010/");
-			baseClientDetails.setClientSecret(passwordEncoder.encode("secret"));
+			BaseClientDetails baseClientDetails = new BaseClientDetails("client", "",
+				"server,profile", "authorization_code,password,refresh_token,client_credentials",
+				"http://localhost:8010/");
+			baseClientDetails.setClientSecret("{noop}secret");
 			baseClientDetailsMap.put("client", baseClientDetails);
 			clientDetailsService.setClientDetailsStore(baseClientDetailsMap);
 			return clientDetailsService;
@@ -58,7 +58,7 @@ public class ClientDetailsConfiguration {
 	@Configuration
 	@AllArgsConstructor
 	@AutoConfigureBefore(ClientDetailsServiceConfiguration.class)
-	@ConditionalOnProperty(prefix = "authorization", name = "client-type", havingValue = "jdbc")
+	@ConditionalOnProperty(prefix = "security.oauth2", name = "client-type", havingValue = "jdbc")
 	public static class JdbcClientDetailsConfig {
 		private final DataSource dataSource;
 		@Nullable

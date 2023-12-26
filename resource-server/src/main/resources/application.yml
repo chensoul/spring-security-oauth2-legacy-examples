@@ -1,15 +1,10 @@
 server:
-  port: 8010
+  port: 8081
 
 spring:
   redis:
     host: localhost
     password: 123456
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          jwk-set-uri: http://localhost:8000/jwks
 
 jdbc:
   url: jdbc:h2:~/data/oauth2;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
@@ -19,16 +14,14 @@ jdbc:
 
 security:
   oauth2:
+    token-type: jwk
     client:
       client-id: client
       client-secret: secret
     resource:
-      token-info-uri: http://localhost:8000/oauth/check_token
-
-#authorization:
-#  client-type: jdbc
-#  user-type: jdbc
-#  token-type: jdbc
+    #      token-info-uri: http://localhost:8080/oauth/check_token
+      jwk:
+        key-set-uri: http://localhost:8080/jwks
 
 logging:
   level:

@@ -4,8 +4,8 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>com.chensoul.oauth2</groupId>
-        <artifactId>spring-security-oauth2-legacy</artifactId>
+        <groupId>com.chensoul.security.oauth2</groupId>
+        <artifactId>spring-security-oauth2-legacy-examples</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
@@ -13,7 +13,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.chensoul.oauth2</groupId>
+            <groupId>com.chensoul.security.oauth2</groupId>
             <artifactId>common</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -26,9 +26,20 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-redis</artifactId>
         </dependency>
+
         <dependency>
-            <groupId>org.springframework.security</groupId>
-            <artifactId>spring-security-oauth2-jose</artifactId>
+            <groupId>org.springframework.security.oauth.boot</groupId>
+            <artifactId>spring-security-oauth2-autoconfigure</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.security.oauth</groupId>
+            <artifactId>spring-security-oauth2</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.nimbusds</groupId>
+            <artifactId>nimbus-jose-jwt</artifactId>
         </dependency>
 
         <!-- jdbc token store -->

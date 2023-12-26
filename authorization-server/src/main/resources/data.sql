@@ -11,7 +11,7 @@ delete from USERS;
 
 -- password
 INSERT INTO USERS (ID,Name, USERNAME,PASSWORD) VALUES (
-   1, 'admin','admin','{noop}123456');
+   1, 'admin','admin','{noop}password');
 
 INSERT INTO USERS (ID, Name, USERNAME,PASSWORD) VALUES (
-   2, 'user','user','{noop}123456');
+   2, 'user','user','{noop}password');

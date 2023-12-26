@@ -1,8 +1,6 @@
 package com.chensoul.security.oauth2.resource.configuration;
 
-import com.chensoul.security.oauth2.resource.properties.PermitUrlProperties;
 import lombok.AllArgsConstructor;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -10,13 +8,16 @@ import org.springframework.security.config.annotation.web.configurers.Expression
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.ResourceServerConfigurerAdapter;
 import org.springframework.security.oauth2.config.annotation.web.configurers.ResourceServerSecurityConfigurer;
-import org.springframework.security.oauth2.provider.token.*;
+import org.springframework.security.oauth2.provider.token.DefaultAccessTokenConverter;
+import org.springframework.security.oauth2.provider.token.DefaultUserAuthenticationConverter;
+import org.springframework.security.oauth2.provider.token.RemoteTokenServices;
+import org.springframework.security.oauth2.provider.token.ResourceServerTokenServices;
+import org.springframework.security.oauth2.provider.token.UserAuthenticationConverter;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.access.AccessDeniedHandler;
-import org.springframework.web.client.RestTemplate;
 
-@ConditionalOnProperty(prefix = "spring.security.oauth2.resourceserver.jwt", name = "jwk-set-uri", havingValue = "", matchIfMissing = true)
 @Import(org.springframework.security.oauth2.config.annotation.web.configuration.ResourceServerConfiguration.class)
+@Configuration
 public class ResourceServerConfiguration {
 
 	@EnableResourceServer
@@ -27,7 +28,6 @@ public class ResourceServerConfiguration {
 		private final AccessDeniedHandler accessDeniedHandler;
 		private final AuthenticationEntryPoint authenticationEntryPoint;
 		private final PermitUrlProperties properties;
-		private final RestTemplate restTemplate;
 
 
 		@Override
@@ -36,6 +36,8 @@ public class ResourceServerConfiguration {
 			properties.getAuthenticatedUrls().forEach(url -> registry.antMatchers(url.getMethod(), url.getUrl()).authenticated());
 			properties.getIgnoreUrls().forEach(url -> registry.antMatchers(url).permitAll());
 			properties.getInnerUrls().forEach(url -> registry.antMatchers(url.getMethod(), url.getUrl()).permitAll());
+
+			registry.anyRequest().authenticated();
 		}
 
 		@Override
@@ -45,9 +47,7 @@ public class ResourceServerConfiguration {
 			accessTokenConverter.setUserTokenConverter(userTokenConverter);
 			if (tokenServices instanceof RemoteTokenServices) {
 				RemoteTokenServices remoteTokenServices = (RemoteTokenServices) tokenServices;
-				remoteTokenServices.setRestTemplate(restTemplate);
 				remoteTokenServices.setAccessTokenConverter(accessTokenConverter);
-
 				resources.tokenServices(remoteTokenServices);
 			} else {
 				resources.tokenServices(tokenServices);

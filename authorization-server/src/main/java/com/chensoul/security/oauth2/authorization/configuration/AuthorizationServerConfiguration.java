@@ -1,17 +1,13 @@
 package com.chensoul.security.oauth2.authorization.configuration;
 
 import com.chensoul.security.oauth2.common.support.CustomWebResponseExceptionTranslator;
-import java.security.Principal;
 import java.util.Arrays;
-import java.util.Map;
-import javax.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.lang.Nullable;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.oauth2.client.filter.OAuth2ClientAuthenticationProcessingFilter;
-import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.config.annotation.configurers.ClientDetailsServiceConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.AuthorizationServerConfigurerAdapter;
 import org.springframework.security.oauth2.config.annotation.web.configuration.AuthorizationServerEndpointsConfiguration;
@@ -20,7 +16,6 @@ import org.springframework.security.oauth2.config.annotation.web.configuration.E
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerEndpointsConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerSecurityConfigurer;
 import org.springframework.security.oauth2.provider.ClientDetailsService;
-import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.client.ClientCredentialsTokenEndpointFilter;
 import org.springframework.security.oauth2.provider.code.AuthorizationCodeServices;
 import org.springframework.security.oauth2.provider.endpoint.AuthorizationEndpoint;
@@ -39,7 +34,6 @@ import org.springframework.security.oauth2.provider.token.store.JwtTokenStore;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter;
-import org.springframework.web.bind.support.SessionStatus;
 
 /**
  * Authorization Server Configuration
@@ -55,22 +49,19 @@ import org.springframework.web.bind.support.SessionStatus;
  * </p>
  *
  * @author <a href="mailto:chensoul.eth@gmail.com">chensoul</a>
- * @see DefaultLoginPageGeneratingFilter 默认登录页面
- * @see OAuth2ClientAuthenticationProcessingFilter 一个 OAuth2 客户端过滤器，可用于从授权服务器获取 OAuth2 访问令牌，并将身份验证对象加载到 SecurityContext
- * @see ClientCredentialsTokenEndpointFilter 令牌端点的过滤器和身份验证端点
- * @see AuthorizationServerEndpointsConfiguration#authorizationEndpoint() 自定义页面
- * @see AuthorizationServerSecurityConfiguration Token 相关路径权限配置
- * @see WhitelabelApprovalEndpoint 用于显示授权服务器的批准页面的控制器。
- * @see WhitelabelErrorEndpoint 用于显示授权服务器错误页面的控制器。
- * @see AuthorizationEndpoint#authorize(Map, Map, SessionStatus, Principal) 授权码
- * @see AuthorizationEndpoint#approveOrDeny(Map, Map, SessionStatus, Principal) 授权码
- * @see TokenEndpoint#getAccessToken(Principal, Map) 获取 Token
- * @see TokenEndpoint#postAccessToken(Principal, Map) 获取 Token
- * @see TokenKeyEndpoint#getKey(Principal) 获取令牌签名的验证密钥
- * @see CheckTokenEndpoint#checkToken(String) 检查 Token
- * @see WhitelabelErrorEndpoint#handleError(HttpServletRequest) 异常处理
- * @see JwtAccessTokenConverter#enhance(OAuth2AccessToken, OAuth2Authentication) 增强Token
- * @see JwtTokenStore#readAccessToken(String)  读取 JWT Token
+ * @see DefaultLoginPageGeneratingFilter
+ * @see OAuth2ClientAuthenticationProcessingFilter
+ * @see ClientCredentialsTokenEndpointFilter
+ * @see AuthorizationServerEndpointsConfiguration
+ * @see AuthorizationServerSecurityConfiguration
+ * @see WhitelabelApprovalEndpoint 。
+ * @see WhitelabelErrorEndpoint 。
+ * @see AuthorizationEndpoint
+ * @see TokenEndpoint
+ * @see TokenKeyEndpoint
+ * @see CheckTokenEndpoint
+ * @see JwtAccessTokenConverter
+ * @see JwtTokenStore
  * @since 4.0.0
  */
 @Configuration
@@ -80,14 +71,15 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
 	private final AuthenticationManager authenticationManager;
 	private final UserDetailsService userDetailsService;
 	private final TokenStore tokenStore;
-	@Nullable
-	private final AccessTokenConverter accessTokenConverter;
-	@Nullable
-	private final TokenEnhancer tokenEnhancer;
 	private final AuthenticationEntryPoint authenticationEntryPoint;
 	private final AccessDeniedHandler accessDeniedHandler;
 	private final ClientDetailsService clientDetailsService;
 	private final AuthorizationCodeServices authorizationCodeServices;
+
+	@Nullable
+	private final AccessTokenConverter accessTokenConverter;
+	@Nullable
+	private final TokenEnhancer tokenEnhancer;
 
 	@Override
 	public void configure(final ClientDetailsServiceConfigurer clients) throws Exception {

@@ -113,16 +113,34 @@ openssl pkcs12 -in private.p12 -nodes -nocerts -out private.key
 
 ### 授权接口及相关参数
 
-| 授权模式                       | 请求路径             | 请求方法 | 请求头                                            | 请求参数                                                                                                                     |
-|----------------------------|------------------|------|------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------|
-| 用户名密码(password)            | /oauth/token     | post | Content-Type:application/x-www-form-urlencoded | grant_type:password<br/>username:user<br/>password:123456<br/>scope:server<br/>client_id:client<br/>client_secret:secret |
-| 客户端凭证(client_credentials)  | /oauth/token     | post | Content-Type:application/x-www-form-urlencoded | grant_type:client_credentials<br/>scope:userinfo resource<br/>client_id:client<br/>client_secret:secret                  |
-| 客户端授权码(authorization_code) | /oauth/authorize | get  | Content-Type:application/x-www-form-urlencoded | response_type=code&scope=server&client_id=client&redirect_uri=https://www.taobao.com                                     |
-| 客户端授权码(authorization_code) | /oauth/authorize | get  | Content-Type:application/x-www-form-urlencoded | response_type:authorization_code<br/>code:gE3Eka<br/>redirect_uri:https://www.jd.com<br/>scope:server                    |
-| 简化模式(implicit)             | /oauth/authorize | get  | Content-Type:application/x-www-form-urlencoded | response_type:token<br/>client_id:client<br/>redirect_uri:https://www.jd.com<br/>scope:server <br/>state:123456          |
+| 授权模式                       | 请求路径             | 请求方法 | 请求头                                            | 请求参数                                                                                                                       |
+|----------------------------|------------------|------|------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------|
+| 用户名密码(password)            | /oauth/token     | post | Content-Type:application/x-www-form-urlencoded | grant_type:password<br/>username:user<br/>password:password<br/>scope:server<br/>client_id:client<br/>client_secret:secret |
+| 客户端凭证(client_credentials)  | /oauth/token     | post | Content-Type:application/x-www-form-urlencoded | grant_type:client_credentials<br/>scope:userinfo resource<br/>client_id:client<br/>client_secret:secret                    |
+| 客户端授权码(authorization_code) | /oauth/authorize | get  | Content-Type:application/x-www-form-urlencoded | response_type=code&scope=server&client_id=client&redirect_uri=https://www.taobao.com                                       |
+| 客户端授权码(authorization_code) | /oauth/authorize | get  | Content-Type:application/x-www-form-urlencoded | response_type:authorization_code<br/>code:gE3Eka<br/>redirect_uri:https://www.jd.com<br/>scope:server                      |
+| 简化模式(implicit)             | /oauth/authorize | get  | Content-Type:application/x-www-form-urlencoded | response_type:token<br/>client_id:client<br/>redirect_uri:https://www.jd.com<br/>scope:server <br/>state:123456            |
 
+```bash
 
+# 密码模式
+curl localhost:8080/oauth/token -d "grant_type=password&scope=server&username=user&password=password" -u client:secret
+
+# 客户端模式
+curl localhost:8080/oauth/token -d "grant_type=client_credentials&scope=server" -u client:secret
+
+TOKEN=eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IlpSYzZuYiJ9.eyJzY29wZSI6WyJzZXJ2ZXIiXSwiZXhwIjoxNzAzNjA4MzU3LCJhdXRob3JpdGllcyI6WyJodHRwOi8vbG9jYWxob3N0OjgwMTAvIl0sImp0aSI6Ii1iLVdwVWFOaGVaMF9BSHF0emNJZkRZSTR4WSIsImNsaWVudF9pZCI6ImNsaWVudCJ9.dUhtrilgkYZe5l-Sesbf-7M6R9MIXw81ZoTU6un5dVtJN7pU1WTliUjK1zQXX3G01YUDN9Kab1twlEgYmUq4_ekJ5vFH-SHz6fgmnhYwe78cybgbS5cUrtYNmXaNfUE_CvsPu0tCuX6n02Kq2PYEhIzIAMnW0OXhKRMZfMuE49o5pT3bRAlNrbAte7SF1bz2gEzjaB7La3qs8X_lg8nByALrOixskpMLUNCKJ8hO_8MCCrJNmaErWQhQdtvHpgssUcG1v3MXCQ12uG3-Ea2GoL2pL4ZDPQJ_r8_GRdyRIoU6yJ7oZkAP_7CTaPd9PbMvSPAvxJVmBUp7BenGkwWINA
+
+curl -X POST http://localhost:8080/oauth/check_token?token=$TOKEN -u client:secret
+
+curl http://localhost:8080/oauth/token_key?token=$TOKEN -u client:secret
+
+curl http://localhost:8080/jwks?token=$TOKEN -u client:secret
+
+curl http://localhost:8081/public\?access_token=$TOKEN
+```
 ## 参考文档
 
 - [spring-security-oauth2-boot 文档](https://docs.spring.io/spring-security-oauth2-boot/docs/current/reference/html5/)
 - [spring-security-oauth2-boot 示例](https://github.com/spring-attic/spring-security-oauth2-boot/tree/main/samples)
+- https://github.com/chensoul/spring-security-oauth2-boot
